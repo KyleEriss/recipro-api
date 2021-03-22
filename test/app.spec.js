@@ -19,12 +19,12 @@ describe('Test Setup', () => {
     }
 
     function seedUsers(db) {
-        return db('reconnaissound_users').insert(getUsersTestData());
+        return db('recipro_users').insert(getUsersTestData());
     }
 
     function cleanTables(db) {
         return db.raw(`
-            TRUNCATE reconnaissound_users, reconnaissound_playlists CASCADE
+            TRUNCATE recipro_users, recipro_favorites CASCADE
         `);
     }
 
@@ -71,18 +71,18 @@ describe('Test Setup', () => {
         })
     })
 
-    context('Playlist', () => {
+    context('Favorites', () => {
         it('responds with 401 unauthorized', () => {
             return supertest(app)
-                .get('/playlists')
+                .get('/favorites')
                 .expect(401)
         })
     })
 
-    context('Playlist', () => {
+    context('Favorites', () => {
         it('responds with 200 authorized', () => {
             return supertest(app)
-                .get('/playlists')
+                .get('/favorites')
             set('Authorization', makeAuthHeader(testUser))
                 .expect(200)
         })

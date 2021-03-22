@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS reconnaissound_users;
+DROP TABLE IF EXISTS recipro_users;

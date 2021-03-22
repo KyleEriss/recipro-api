@@ -1,74 +1,74 @@
 const path = require('path')
 const express = require('express')
 const xss = require('xss')
-const PlaylistsService = require('./playlists-service')
+const FavoritesService = require('./favorites-service')
 const { requireAuth } = require('../middleware/jwt-auth')
 
-const playlistRouter = express.Router()
+const favoritesRouter = express.Router()
 const jsonParser = express.json()
 
-playlistRouter
+favoritesRouter
     .route('/')
     .get(requireAuth, jsonParser, (req, res, next) => {
         const userId = req.user.id
-        PlaylistsService.getPlaylistByUser(
+        FavoritesService.getFavoritesByUser(
             req.app.get('db'),
             userId
         )
-            .then(videos => {
-                res.json(videos.map(PlaylistsService.serializeVideo))
+            .then(recipes => {
+                res.json(recipes.map(FavoritesService.serializeRecipe))
             })
             .catch(next)
     })
 
     .post(requireAuth, jsonParser, (req, res, next) => {
-        const { videoid, videotitle } = req.body
+        const { recipeid, recipeimage, recipetitle } = req.body
         const userId = req.user.id
-        const newvideo = { videoid, videotitle }
+        const newrecipe = { recipeid, recipeimage, recipetitle }
 
-        for (const [key, value] of Object.entries(newvideo))
+        for (const [key, value] of Object.entries(newrecipe))
             if (value == null)
                 return res.status(400).json({
                     error: { message: `Missing '${key}' in request body` }
                 })
 
-        newvideo.userid = req.user.id
-        PlaylistsService.insertVideo(
+        newrecipe.userid = req.user.id
+        FavoritesService.insertRecipe(
             req.app.get('db'),
-            newvideo
+            newrecipe
         )
-            .then(video => {
+            .then(recipe => {
                 res
                     .status(201)
-                    .location(path.posix.join(req.originalUrl, `/${video.id}`))
-                    .json(PlaylistsService.serializeVideo(video))
+                    .location(path.posix.join(req.originalUrl, `/${recipe.id}`))
+                    .json(FavoritesService.serializeRecipe(recipe))
             })
             .catch(next)
     })
 
-playlistRouter
-    .route('/:videoId')
+favoritesRouter
+    .route('/:recipeId')
     .all(requireAuth, jsonParser, (req, res, next) => {
-        PlaylistsService.getVideoById(
+        FavoritesService.getRecipeById(
             req.app.get('db'),
-            req.params.videoId
+            req.params.recipeId
         )
-            .then(video => {
-                if (!video) {
+            .then(recipe => {
+                if (!recipe) {
                     return res.status(404).json({
-                        error: { message: `video doesn't exist` }
+                        error: { message: `recipe doesn't exist` }
                     })
                 }
-                res.video = video
+                res.recipe = recipe
                 next()
             })
             .catch(next)
     })
-    
+
     .delete(requireAuth, jsonParser, (req, res, next) => {
-        PlaylistsService.deleteVideo(
+        FavoritesService.deleteRecipe(
             req.app.get('db'),
-            req.params.videoId
+            req.params.recipeId
         )
             .then(() => {
                 res.status(204).end()
@@ -76,4 +76,4 @@ playlistRouter
             .catch(next)
     })
 
-module.exports = playlistRouter
+module.exports = favoritesRouter

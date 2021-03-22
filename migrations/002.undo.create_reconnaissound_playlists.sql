@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS reconnaissound_playlists;
+DROP TABLE IF EXISTS recipro_favorites;
