@@ -2,7 +2,6 @@ require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-const {CLIENT_ORIGIN} = require('./config')
 const helmet = require('helmet')
 const { NODE_ENV } = require('./config')
 const usersRouter = require('./users/users-router')
@@ -16,13 +15,12 @@ app.use(morgan(morganSetting))
 
 app.use(helmet())
 app.use(cors({
-    origin: CLIENT_ORIGIN
+    origin: '*'
 }))
 
 app.use('/users', usersRouter)
 app.use('/auth', authRouter)
 app.use('/favorites', favoritesRouter)
-
 
 app.get('/', (req, res) => {
     res.send('Hello, world!')
