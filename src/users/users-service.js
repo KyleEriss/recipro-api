@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs')
 const xss = require('xss')
 
 const REGEX_UPPER_LOWER_NUMBER_SPECIAL = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&])[\S]+/;
-const emailValidator = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 const UsersService = {
     hasUserWithUserName(db, username) {
@@ -18,7 +17,7 @@ const UsersService = {
             .returning('*')
             .then(([user]) => user)
     },
-    validatePassword(password) {
+    validatePassword(username, password) {
         if (password.length < 8) {
             return "password must be at least 8 characters";
           }
@@ -31,11 +30,8 @@ const UsersService = {
           if (!REGEX_UPPER_LOWER_NUMBER_SPECIAL.test(password)) {
             return "password must contain one upper case, lower case, symbol, and number";
           }
-          if (!emailValidator.test(email)) {
-            return "please use a valid email address";
-          }
-          if (password === username || password === email) {
-            return "username or email may not be used as password";
+          if (password === username) {
+            return "username may not be used as password";
           }
           return null;
     },
